@@ -423,7 +423,7 @@ st.markdown("""
     <div style='text-align: center; margin-top: 4rem; padding: 2rem; color: rgba(255,255,255,0.8);'>
         <hr style='border: none; height: 1px; background: rgba(255,255,255,0.2); margin-bottom: 1rem;'>
         <p style='font-size: 0.95rem; font-weight: 300;'>
-            Made with ❤️ by <strong>Somya</strong> | Powered by <strong>Mistral AI</strong> & <strong>LangChain</strong>
+            Powered by <strong>Mistral AI</strong> & <strong>LangChain</strong>
         </p>
         <p style='font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;'>
             🚀 Transform your PDFs into interactive knowledge bases
