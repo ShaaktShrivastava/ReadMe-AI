@@ -16,6 +16,7 @@ env/
 
 # Environment Variables
 .env
+.streamlit/secrets.toml
 
 # ChromaDB
 chroma_db/
