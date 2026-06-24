@@ -13,6 +13,16 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
+# Check for API key
+mistral_api_key = os.getenv("MISTRAL_API_KEY")
+if not mistral_api_key:
+    # Try Streamlit secrets for cloud deployment
+    try:
+        mistral_api_key = st.secrets["MISTRAL_API_KEY"]
+        os.environ["MISTRAL_API_KEY"] = mistral_api_key
+    except:
+        pass
+
 st.set_page_config(
     page_title="ReadMeAI",
     page_icon="📚",
@@ -283,28 +293,38 @@ if uploaded_file:
     st.success("✅ PDF uploaded successfully!")
 
     if st.button("🚀 Create Vector Database"):
+        
+        # Check API key
+        if not os.getenv("MISTRAL_API_KEY"):
+            st.error("⚠️ MISTRAL_API_KEY not found! Please add it to Streamlit Cloud Secrets or your .env file.")
+            st.stop()
 
-        with st.spinner("🔄 Processing document..."):
+        try:
+            with st.spinner("🔄 Processing document..."):
 
-            loader = PyPDFLoader(file_path)
-            docs = loader.load()
+                loader = PyPDFLoader(file_path)
+                docs = loader.load()
 
-            splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=200
-            )
+                splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=200
+                )
 
-            chunks = splitter.split_documents(docs)
+                chunks = splitter.split_documents(docs)
 
-            embeddings = MistralAIEmbeddings(model="mistral-embed")
+                embeddings = MistralAIEmbeddings(model="mistral-embed")
 
-            vectorstore = Chroma.from_documents(
-                documents=chunks,
-                embedding=embeddings,
-                persist_directory="chroma_db"
-            )
+                vectorstore = Chroma.from_documents(
+                    documents=chunks,
+                    embedding=embeddings,
+                    persist_directory="chroma_db"
+                )
 
-        st.success(f"✨ Vector database created! Processed {len(docs)} pages into {len(chunks)} chunks.")
+            st.success(f"✨ Vector database created! Processed {len(docs)} pages into {len(chunks)} chunks.")
+        
+        except Exception as e:
+            st.error(f"❌ Error creating vector database: {str(e)}")
+            st.info("💡 Please check that your MISTRAL_API_KEY is valid and has sufficient credits.")
 
 # Question Section
 if os.path.exists("chroma_db"):
@@ -363,31 +383,36 @@ Question:
 
     if query:
 
-        with st.spinner("🤔 Thinking..."):
-            docs = retriever.invoke(query)
+        try:
+            with st.spinner("🤔 Thinking..."):
+                docs = retriever.invoke(query)
 
-            context = "\n\n".join(
-                [doc.page_content for doc in docs]
-            )
+                context = "\n\n".join(
+                    [doc.page_content for doc in docs]
+                )
 
-            final_prompt = prompt.invoke({
-                "context": context,
-                "question": query
-            })
+                final_prompt = prompt.invoke({
+                    "context": context,
+                    "question": query
+                })
 
-            response = llm.invoke(final_prompt)
+                response = llm.invoke(final_prompt)
 
-        st.markdown("---")
-        st.markdown("### 🤖 AI Response")
-        st.markdown(f"<div class='answer-box'>{response.content}</div>", unsafe_allow_html=True)
+            st.markdown("---")
+            st.markdown("### 🤖 AI Response")
+            st.markdown(f"<div class='answer-box'>{response.content}</div>", unsafe_allow_html=True)
+            
+            # Add a fun fact or tip
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("""
+                <div style='text-align: center; color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 1rem;'>
+                    💡 Tip: Try asking follow-up questions for deeper insights!
+                </div>
+            """, unsafe_allow_html=True)
         
-        # Add a fun fact or tip
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("""
-            <div style='text-align: center; color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 1rem;'>
-                💡 Tip: Try asking follow-up questions for deeper insights!
-            </div>
-        """, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"❌ Error generating response: {str(e)}")
+            st.info("💡 Please check your API key and try again.")
 else:
     st.markdown("<div class='upload-container'>", unsafe_allow_html=True)
     st.info("📌 Please upload a PDF and create the vector database first to start asking questions.")
