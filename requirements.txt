@@ -1,52 +1,8 @@
-langchain
-langchain-core
-langchain-community
-
-# LLM Providers
-
-langchain-openai
-langchain-mistralai
-openai
-mistralai
-
-# Vector Database
-
-chromadb
-
-# Embedding Models
-
-sentence-transformers
-
-# Document Loaders dependencies
-
-pypdf
-unstructured
-beautifulsoup4
-lxml
-
-# Text Processing
-
-tiktoken
-
-# Environment Variables
-
-python-dotenv
-
-# Data Handling
-
-pandas
-numpy
-
-# API / App Layer (optional but common in RAG apps)
-
-fastapi
-uvicorn
-
-# UI (optional)
-
-streamlit
-
-# Utilities
-
-tqdm
-requests
+streamlit==1.32.0
+langchain==0.1.13
+langchain-community==0.0.29
+langchain-core==0.1.33
+langchain-mistralai==0.0.5
+chromadb==0.4.24
+pypdf==4.1.0
+python-dotenv==1.0.1
